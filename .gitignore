@@ -1,0 +1,35 @@
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# Dependency directories
+node_modules/
+packages/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# dotenv (si usas .env para variables)
+.env
+
+# Otros temporales
+*.swp
+*.tmp
+*.bak
+*.orig
