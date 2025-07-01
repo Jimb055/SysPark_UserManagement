@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.DTOs;
 using UserManagement.Interfaces;
@@ -10,15 +12,11 @@ namespace UserManagement.Controllers
     {
         private readonly IUserService _userService;
 
-        // Inyección del servicio de usuario
-        // Inject user service
         public UsuariosController(IUserService userService)
         {
             _userService = userService;
         }
 
-        // Crear nuevo usuario
-        // Create new user
         [HttpPost]
         public async Task<ActionResult<UserDTO>> CreateUser([FromBody] UserCreateDTO dto)
         {
@@ -33,8 +31,6 @@ namespace UserManagement.Controllers
             }
         }
 
-        // Obtener usuario por ID
-        // Get user by ID
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<UserDTO>> GetUserById(Guid id)
         {
@@ -42,8 +38,6 @@ namespace UserManagement.Controllers
             return result == null ? NotFound() : Ok(result);
         }
 
-        // Listar todos los usuarios
-        // List all users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDTO>>> GetAllUsers()
         {
@@ -51,8 +45,6 @@ namespace UserManagement.Controllers
             return Ok(result);
         }
 
-        // Actualizar usuario
-        // Update user
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateUser(Guid id, UserUpdateDTO dto)
         {
@@ -60,22 +52,45 @@ namespace UserManagement.Controllers
             return success ? NoContent() : NotFound();
         }
 
-        // Login de usuario (temporal en este microservicio)
-        // User login (temporary in this microservice)
-        [HttpPost("login")]
-        public async Task<ActionResult<UserDTO>> Login(UserLoginDTO dto)
-        {
-            var result = await _userService.LoginAsync(dto);
-            return result == null ? Unauthorized("Invalid credentials.") : Ok(result);
-        }
-
-        // Cambiar contraseña del usuario
-        // Change user's password
+        [Authorize]
         [HttpPut("{id:guid}/change-password")]
         public async Task<IActionResult> ChangePassword(Guid id, UserChangePasswordDTO dto)
         {
             var success = await _userService.ChangePasswordAsync(id, dto);
             return success ? NoContent() : BadRequest("Password change failed.");
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public IActionResult GetMyProfile()
+        {
+            // Mostrar los claims en consola para depuración
+            // Print all claims for debugging
+            Console.WriteLine("\n[DEBUG] Claims recibidos:");
+            foreach (var claim in User.Claims)
+            {
+                Console.WriteLine($"[CLAIM] {claim.Type} => {claim.Value}");
+            }
+
+            // Obtener el ID del usuario desde el claim estándar
+            // Get user ID from standard claim
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            // Obtener el email y rol desde sus tipos estándar
+            // Get email and role from standard claim types
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            // Devolver identidad autenticada
+            // Return authenticated identity
+            return Ok(
+                new
+                {
+                    Id = userId,
+                    Email = email,
+                    Role = role,
+                }
+            );
         }
     }
 }

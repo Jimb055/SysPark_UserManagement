@@ -94,26 +94,6 @@ namespace UserManagement.Services
             return true;
         }
 
-        public async Task<UserDTO?> LoginAsync(UserLoginDTO dto)
-        {
-            // Validar que el email no sea nulo o inválido
-            // Validate that email is not null or invalid
-            if (string.IsNullOrWhiteSpace(dto.Email) || !IsValidEmail(dto.Email))
-                return null;
-
-            // Validar que la contraseña no sea vacía
-            // Validate that password is not empty
-            if (string.IsNullOrWhiteSpace(dto.Password))
-                return null;
-
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
-            if (user == null)
-                return null;
-
-            var isValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
-            return isValid ? MapToDTO(user) : null;
-        }
-
         // Conversión entidad → DTO
         // Convert entity to DTO
         private static UserDTO MapToDTO(UserEntity entity)

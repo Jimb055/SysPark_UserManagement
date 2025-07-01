@@ -11,7 +11,6 @@ namespace UserManagement.Interfaces
         Task<UserDTO?> GetUserByIdAsync(Guid id);
         Task<List<UserDTO>> GetAllUsersAsync();
         Task<bool> UpdateUserAsync(Guid id, UserUpdateDTO dto);
-        Task<UserDTO?> LoginAsync(UserLoginDTO dto);
         Task<bool> ChangePasswordAsync(Guid userId, UserChangePasswordDTO dto);
     }
 }
